@@ -12,6 +12,7 @@ var defaultconfigFile = "./db.js";
 var defaultconfigFile2 = "./pgmigrations.js";
 
 var args = process.argv.slice(2);
+//var args = ["up", "--list", "--verbose"];
 var cmd = args[0];
 var userConfigs = [defaultconfigFile, defaultconfigFile2];
 
@@ -24,7 +25,7 @@ function buildConfig(opt) {
         var configFile = path.join(process.cwd(), userConfigs[i]);
         if (fs.existsSync(configFile) && fs.lstatSync(configFile).isFile()) {
             if (opt.verbose) {
-                info("Using default config file: " + configFile);
+                info("Using config file: " + configFile);
             }
             var config = require(configFile);
 

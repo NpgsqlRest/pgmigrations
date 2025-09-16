@@ -1,6 +1,6 @@
 {
   "name": "@vbilopav/pgmigrations",
-  "version": "0.43.0",
+  "version": "0.44.0",
   "description": "PostgreSQL Migration Tool for Node.js and NPM",
   "author": "vb-consulting",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vb-consulting/pgmigrations.git"
+    "url": "git+https://github.com/NpgsqlRest/pgmigrations.git"
   },
   "keywords": [
     "postgresql",
@@ -28,9 +28,9 @@
     "database tests"
   ],
   "bugs": {
-    "url": "https://github.com/vb-consulting/pgmigrations/issues"
+    "url": "https://github.com/NpgsqlRest/pgmigrations/issues"
   },
-  "homepage": "https://github.com/vb-consulting/pgmigrations/blob/master/README.md",
+  "homepage": "https://github.com/NpgsqlRest/pgmigrations/blob/master/README.md",
   "dependencies": {
     "dotenv": "^16.4.7"
   }

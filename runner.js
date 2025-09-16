@@ -95,12 +95,14 @@ function run(options, stdErrOnly) {
         let stdoutBuffer = "";
         let stderrBuffer = "";
 
-        var spawnOptions = {};
+        var spawnOptions = {
+            env: {...process.env}
+        };
         if (options.inherit) {
             spawnOptions.stdio = 'inherit';
         }
         if (options.config.password) {
-            spawnOptions.env = {PGPASSWORD: options.config.password};
+            spawnOptions.env.PGPASSWORD = options.config.password;
         }
         options.hasError = false;
         const child = cp.spawn(cmd, args, spawnOptions);
