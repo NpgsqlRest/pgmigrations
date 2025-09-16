@@ -773,15 +773,22 @@ where {schema}.{name}.name = t.name and {schema}.{name}.type = t.type;`)}
 `);
     
             if (opt.dry) {
-                line(`do 'begin raise info ''Rolling back migration changes...''; end;';
+                if (config.useProceduralScript) {
+                line(`raise notice 'Rolling back migration changes...';';
 rollback;`);
+                } else {
+                    line(`do 'begin raise notice ''Rolling back migration changes...''; end;';
+rollback;`);
+                }
             }
             
             if (config.useProceduralScript) {
             line(`end;
 $migration_${ident}$;`);
             } else {
-                line(`end;`);
+                if (!opt.dry) {
+                    line(`end;`);
+                }
             }
     
         if (opt.dump) {
