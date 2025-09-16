@@ -773,7 +773,7 @@ where {schema}.{name}.name = t.name and {schema}.{name}.type = t.type;`)}
 `);
     
             if (opt.dry) {
-                line(`raise info 'Rolling back migration changes...';
+                line(`do 'begin raise info ''Rolling back migration changes...''; end;';
 rollback;`);
             }
             
