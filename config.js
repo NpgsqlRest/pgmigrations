@@ -33,6 +33,7 @@ module.exports = {
     separatorPrefix: "__",
     finalizePrefix: "TEST",
     allFilesAreRepetable: false,
+    repetableByScriptPath: true,
     migrationExtensions: [".sql"],
     recursiveDirs: false,
     dirsOrderedByName: true,

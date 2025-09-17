@@ -319,6 +319,10 @@ The after migration type prefix. The default is `A`.
 
 Separator prefix. The default value is `__`
 
+### repetableByScriptPath
+
+True or false. When true, repetable scripts are identified and by full script path, including directory and full file name. When false, repetable scripts are identified by script name (file name without prefix, separator, extension and path). Default it true.
+
 #### migrationExtensions: [".sql"],
 
 An array of file extensions that will be considered as the migration file. The default is `[".sql"]`.
