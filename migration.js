@@ -492,7 +492,7 @@ module.exports = {
                         if (isUp) {
                             type = migTypes.repetableBefore;
 
-                            if (repetableHashes[hash + ";" (config.repetableByScriptPath ? script : name)]) {
+                            if (repetableHashes[hash + ";" + (config.repetableByScriptPath ? script : name)]) {
                                 //pushTo = null;
                                 return;
                             }
@@ -516,8 +516,8 @@ module.exports = {
                         if (config.allFilesAreRepetable) {
                             if (isUp) {
                                 type = migTypes.repetable;
-        
-                                if (repetableHashes[hash + ";" (config.repetableByScriptPath ? script : name)]) {
+
+                                if (repetableHashes[hash + ";" + (config.repetableByScriptPath ? script : name)]) {
                                     return;
                                 }
                                 pushTo = repetableList;
