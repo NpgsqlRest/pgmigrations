@@ -6,7 +6,8 @@ const { run } = require("./runner.js");
 module.exports = async function(opt, config) {
 
     var testList = [];
-    const migrationDirs = Array.isArray(config.migrationDir) ? config.migrationDir : [config.migrationDir];
+    var dir = config.testDir || config.migrationDir;
+    const migrationDirs = Array.isArray(dir) ? dir : [dir];
     for (let i = 0; i < migrationDirs.length; i++) {
         const migrationDir = migrationDirs[i];
         if (!migrationDir) {

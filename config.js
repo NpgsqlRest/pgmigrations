@@ -16,6 +16,7 @@ module.exports = {
     env: true,
 
     migrationDir: "",
+    testDir: "",
     
     upDirs: [],
     downDirs: [],
