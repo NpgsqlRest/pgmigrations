@@ -1,98 +1,80 @@
 const { warning, info, error, passed, failed } = require("./log.js");
-const { query, command } = require("./runner.js");
-
-const testListQuery = `select 
-coalesce(json_agg(to_json(sub)), '[]'::json)
-from ( 
-    select 
-        quote_ident(routine_schema) as schema, 
-        quote_ident(routine_name) as name, 
-        routine_type as type,
-        des.description as comment
-    from 
-        information_schema.routines r
-        left join information_schema.parameters p on r.specific_name = p.specific_name and r.specific_schema = p.specific_schema
-        left join pg_catalog.pg_proc proc on r.specific_name = proc.proname || '_' || proc.oid
-        left join pg_catalog.pg_description des on proc.oid = des.objoid
-    where
-        routine_schema not like 'pg_%'
-        and routine_schema <> 'information_schema'
-        and not lower(r.external_language) = any(array['c', 'internal'])
-        and coalesce(r.type_udt_name, '') <> 'trigger'
-        and (
-            ({testFunctionsSchemaSimilarTo} is null or routine_schema like {testFunctionsSchemaSimilarTo})
-            and ({testFunctionsNameSimilarTo} is null or routine_name like {testFunctionsNameSimilarTo})
-            and ({testFunctionsCommentSimilarTo} is null or des.description like {testFunctionsCommentSimilarTo})
-        )
-    group by
-        quote_ident(routine_schema), 
-        quote_ident(routine_name), 
-        routine_type,
-        des.description
-    having count(p.*) = 0
-) sub;`;
-
-function formatStrByName(str, obj) {
-    return str.replace(/{([^{}]+)}/g, function(match, key) {
-        let val = obj[key];
-        if (val === undefined) {
-            return match;
-        }
-        if (val == null) {
-            return "NULL";
-        }
-        return "'" + val + "'";
-    });
-};
+const fs = require("fs");
+const path = require("path");
+const { run } = require("./runner.js");
 
 module.exports = async function(opt, config) {
-    let tests = JSON.parse(await query(formatStrByName(testListQuery, {
-        testFunctionsSchemaSimilarTo: config.testFunctionsSchemaSimilarTo,
-        testFunctionsNameSimilarTo: config.testFunctionsNameSimilarTo,
-        testFunctionsCommentSimilarTo: config.testFunctionsCommentSimilarTo
-    }), opt, config));
 
-    if (!tests.length) {
+    var testList = [];
+    const migrationDirs = Array.isArray(config.migrationDir) ? config.migrationDir : [config.migrationDir];
+    for (let i = 0; i < migrationDirs.length; i++) {
+        const migrationDir = migrationDirs[i];
+        if (!migrationDir) {
+            continue;
+        }
+        if (!fs.existsSync(migrationDir) || !fs.lstatSync(migrationDir).isDirectory()) {
+            error(`Test directory ${migrationDir} does not exist or is not a directory. Please provide a valid test directory.`);
+            return;
+        }
+        fs.readdirSync(migrationDir).forEach(fileName => {
+            const filePath = path.join(migrationDir, fileName);
+            if (fs.lstatSync(filePath).isDirectory()) {
+                return;
+            }
+
+            // if filePath matches config.skipPattern, skip it
+            if (config.skipPattern && filePath.match(config.skipPattern)) {
+                if (opt.verbose) {
+                    warning(`Skipping file ${fileName} matching skip pattern ${config.skipPattern}.`);
+                }
+                return;
+            }
+
+            for (let j = 0; j < config.migrationExtensions.length; j++) {
+                const ext = config.migrationExtensions[j].toLowerCase();
+                if (!fileName.toLowerCase().endsWith(ext)) {
+                    if (opt.verbose) {
+                        warning(`Skipping file ${fileName} with invalid extension. Valid extensions are ${config.migrationExtensions.join(", ")}.`);
+                    }
+                    return;
+                }
+            }
+            testList.push({fileName, filePath: filePath.replace(/\\/g, "/").replace(/\/+/g, "/").replace('./', "").replace('./', "")});
+        });
+    }
+
+    if (!testList.length) {
         warning("Nothing to test.");
     }
 
     if (opt.list) {
-        tests.forEach((test, index) => {
-            info(`${++index}. ${test.schema == "public" ? "" : test.schema + "."}${test.name}${test.comment ? " (" + test.comment.replace(/[\r\n\t]/g, " ").trim() + ")"  : ""}`)
-        });
+        info("");
+        warning("Test scripts:");
+        for (let item of testList) {
+            info(item);
+        }
         return;
     }
 
     let failedCount = 0;
     let passedCount = 0;
-    let label = "Total " + tests.length.toString() + " tests";
+    let label = "Total " + testList.length.toString() + " tests";
     console.time(label);
-    await Promise.all(tests.map(async (test) => {
-        let cmd;
-        if (test.type == "FUNCTION") {
-            if (config.testAutomaticallyRollbackFunctionTests) {
-                cmd = "begin; select " + test.schema + "." + test.name + "(); rollback;";
-            } else {
-                cmd = "select " + test.schema + "." + test.name + "();";
-            }
-            
-        } else if (test.type == "PROCEDURE") {
-            cmd = "call " + test.schema + "." + test.name + "();";
-        } else {
-            return;
-        }
+    await Promise.all(testList.map(async (test) => {
         
-        let testInfo = `${test.schema == "public" ? "" : test.schema + "."}${test.name}${test.comment ? " (" + test.comment.replace(/[\r\n\t]/g, " ").trim() + ")"  : ""}`;
-        let result = await command(cmd, opt, ["--tuples-only", "--no-align"], config, true, true); 
+        let testInfo = test.fileName;
+        let result = await run({
+            command: config.psql,
+            config: config,
+            file: test.filePath,
+            verbose: opt.verbose,
+            skipErrorDetails: false,
+            //additionalArgs: ["-v", "VERBOSITY=terse", "-v", "ON_ERROR_STOP=1"],
+        }, true);
         
-        let lower = result.stderr ? result.stderr.toLowerCase() : "";
-        if (result.code != 0 || result.stdout == "f" || result.stdout.toLowerCase().startsWith("not ok")) {
+
+        if (result != 0) {
             failed(testInfo);
-            error(result.stderr || result.stdout);
-            failedCount++;
-        } else if (lower.indexOf("error:") > -1 || lower.indexOf("fatal:") > -1 || lower.indexOf("panic:") > -1) {
-            failed(testInfo);
-            error(result.stderr || result.stdout);
             failedCount++;
         } else {
             passed(testInfo);
@@ -100,7 +82,7 @@ module.exports = async function(opt, config) {
         }
     }));
 
-    info();
+    info("");
     passed(passedCount.toString());
     if (failedCount > 0) {
         failed(failedCount.toString());

@@ -483,47 +483,7 @@ Set to true to run versioned migration even when higher version was applied. Def
 
 ### Testing
 
-Test command will run tests on PostgreSQL functions and procedures: 
-
-- Test functions and procedures are required to have no parameters.
-- The test is considered passed if:
-  - Doesn't raise any exceptions.
-  - The function doesn't return either boolean False, or text `f`, or return text doesn't start with `not ok` (case insensitive).
-
-To assert a failed test:
-- Raise custom exception with a custom message: `raise exception 'failed message';`
-- Return false: `return false;`
-- Return text that starts with "not ok": `return 'not ok: failed message'`
-
-#### testFunctionsSchemaSimilarTo
-
-Default: `%test%`
-
-Test function or procedure schema that is SIMILAR TO ([see ref](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP)) this text value or `null` for all non-system schemas.
-
-The test list returns parameterless functions and procedures that match these schemas.
-
-#### testFunctionsNameSimilarTo
-
-Default: `null`
-
-Test function or procedure name that is SIMILAR TO ([see ref](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP)) this text (case insensitive) or `null` for all function or procedure names without parameters.
-
-The test list returns parameterless functions and procedures that match these names.
-
-#### testFunctionsCommentSimilarTo
-
-Default: `test`
-
-Test function or procedure comment that is SIMILAR TO ([see ref](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP)) this text (case insensitive) or `null` for all function or procedure names without parameters.
-
-The test list returns parameterless functions and procedures that match these comments.
-
-#### testAutomaticallyRollbackFunctionTests
-
-Default: `false`.
-
-When the test routine is the Function type, automatically begin and rollback transaction.
+Testing will execute script in migrations direcory in parallel mode.
 
 #### failureExitCode
 

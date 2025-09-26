@@ -12,7 +12,7 @@ var defaultconfigFile = "./db.js";
 var defaultconfigFile2 = "./pgmigrations.js";
 
 var args = process.argv.slice(2);
-//var args = ["up", "--list", "--verbose"];
+//var args = ["test", "--config=test-cfg.js"];
 var cmd = args[0];
 var userConfigs = [defaultconfigFile, defaultconfigFile2];
 
