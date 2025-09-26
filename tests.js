@@ -63,15 +63,20 @@ module.exports = async function(opt, config) {
     await Promise.all(testList.map(async (test) => {
         
         let testInfo = test.fileName;
-        let result = await run({
-            command: config.psql,
-            config: config,
-            file: test.filePath,
-            verbose: opt.verbose,
-            skipErrorDetails: false,
-            //additionalArgs: ["-v", "VERBOSITY=terse", "-v", "ON_ERROR_STOP=1"],
-        }, true);
-        
+        let result = 0;
+
+        try {
+            result = await run({
+                command: config.psql,
+                config: config,
+                file: test.filePath,
+                verbose: opt.verbose,
+                skipErrorDetails: false,
+                //additionalArgs: ["-v", "VERBOSITY=terse", "-v", "ON_ERROR_STOP=1"],
+            }, true);
+        } catch (e) {
+            result = -1;
+        }
 
         if (result != 0) {
             failed(testInfo);
