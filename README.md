@@ -271,13 +271,13 @@ List of directories for versioned UP migrations. Prefix and version number is ma
 
 List of directories for versioned DOWN migrations. Prefix and version number is mandatory.
 
-#### repetableDirs
+#### repeatableDirs
 
-List of directories for versioned REPETABLE migrations. Prefix is mandatory.
+List of directories for versioned repeatable migrations. Prefix is mandatory.
 
-#### repetableBeforeDirs
+#### repeatableBeforeDirs
 
-List of directories for versioned REPETABLE BEFORE migrations. Prefix is mandatory.
+List of directories for versioned repeatable BEFORE migrations. Prefix is mandatory.
 
 #### beforeDirs
 
@@ -299,11 +299,11 @@ Up version migration type prefix. The default is `V` (V for version).
 
 Down version migration type prefix. The default is `U` (U for undo).
 
-#### repetablePrefix
+#### repeatablePrefix
 
 Repeatable migration type prefix. The default is `R` (R for repeatable).
 
-#### repetableBeforePrefix
+#### repeatableBeforePrefix
 
 Repeatable before migration type prefix. The default is `_R` (R for repeatable).
 
@@ -319,17 +319,17 @@ The after migration type prefix. The default is `A`.
 
 Separator prefix. The default value is `__`
 
-### repetableByScriptPath
+### repeatableByScriptPath
 
-True or false. When true, repetable scripts are identified and by full script path, including directory and full file name. When false, repetable scripts are identified by script name (file name without prefix, separator, extension and path). Default it true.
+True or false. When true, repeatable scripts are identified and by full script path, including directory and full file name. When false, repeatable scripts are identified by script name (file name without prefix, separator, extension and path). Default it true.
 
 #### migrationExtensions: [".sql"],
 
 An array of file extensions that will be considered as the migration file. The default is `[".sql"]`.
 
-#### allFilesAreRepetable
+#### allFilesArerepeatable
 
-All files that don't have valid prefix are repetable migrations.
+All files that don't have valid prefix are repeatable migrations.
 
 #### recursiveDirs
 

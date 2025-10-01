@@ -16,25 +16,24 @@ module.exports = {
     env: true,
 
     migrationDir: "",
-    testDir: "",
     
     upDirs: [],
     downDirs: [],
-    repetableDirs: [],
-    repetableBeforeDirs: [],
+    repeatableDirs: [],
+    repeatableBeforeDirs: [],
     beforeDirs: [],
     afterDirs: [],
 
     upPrefix: "V",
     downPrefix: "U",
-    repetablePrefix: "R",
-    repetableBeforePrefix: "_R",
+    repeatablePrefix: "R",
+    repeatableBeforePrefix: "_R",
     beforePrefix: "_B",
     afterPrefix: "_A",
     separatorPrefix: "__",
     finalizePrefix: "TEST",
-    allFilesAreRepetable: false,
-    repetableByScriptPath: true,
+    allFilesArerepeatable: false,
+    repeatableByScriptPath: true,
     migrationExtensions: [".sql"],
     recursiveDirs: false,
     dirsOrderedByName: true,
@@ -65,8 +64,11 @@ module.exports = {
 
     failureExitCode: -1,
 
-    testFunctionsSchemaSimilarTo: "test",
-    testFunctionsNameSimilarTo: null,
-    testFunctionsCommentSimilarTo: null,
-    testAutomaticallyRollbackFunctionTests: false
+    testDir: "",
+
+    // todo
+    createTestTemplateDb: false,
+    createTestTemplateDbForEachTest: false,
+    testTemplateDbName: "{db}_test_{timestamp}_{index}", // {db} = original db name, {timestamp} = current timestamp, {index} = index of the test (zero is master)
+    testTemplateDbOptions: "", // additional options when creating the test template database 
 }

@@ -5,19 +5,19 @@ const fs = require("fs");
 
 /*
 const types = {
-    repetable: "R",
+    repeatable: "R",
     up: "U",
     down: "D",
-    repetableBefore: "P",
+    repeatableBefore: "P",
     before: "B",
     after: "A",
 };
 */
 const migTypes = {
-    repetable: "REPEATABLE",
+    repeatable: "REPEATABLE",
     up: "VERSION UP",
     down: "VERSION DOWN",
-    repetableBefore: "REPEATABLE BEFORE",
+    repeatableBefore: "REPEATABLE BEFORE",
     before: "BEFORE MIGRATIONS",
     after: "AFTER MIGRATIONS",
 };
@@ -111,7 +111,7 @@ function parseContent(filePath, config, opt) {
 
 function validateConfig(config) {
     var mandatory = [
-        "upPrefix","downPrefix","repetablePrefix","repetableBeforePrefix",
+        "upPrefix","downPrefix","repeatablePrefix","repeatableBeforePrefix",
         "beforePrefix","afterPrefix","separatorPrefix",
         "historyTableName","historyTableSchema",
         "tmpDir","hashFunction"
@@ -219,11 +219,11 @@ module.exports = {
                 }
             }
     
-            var repetableHashes = {};
+            var repeatableHashes = {};
             var versionDict = {};
             history.forEach(h => {
-                if (h.type == migTypes.repetable || h.type == migTypes.repetableBefore) {
-                    repetableHashes[h.hash + ";" + (config.repetableByScriptPath ? h.script : h.name)] = h;
+                if (h.type == migTypes.repeatable || h.type == migTypes.repeatableBefore) {
+                    repeatableHashes[h.hash + ";" + (config.repeatableByScriptPath ? h.script : h.name)] = h;
                 }
                 if (h.type == migTypes.up) {
                     versionDict[h.version] = h;
@@ -235,8 +235,8 @@ module.exports = {
             
             const upDirsHash = {};
             const downDirsHash = {};
-            const repetableDirsHash = {};
-            const repetableBeforeDirsHash = {};
+            const repeatableDirsHash = {};
+            const repeatableBeforeDirsHash = {};
             const beforeDirsHash = {};
             const afterDirsHash = {};
     
@@ -248,13 +248,13 @@ module.exports = {
                 migrationDirs.push(...config.downDirs);
                 config.downDirs.forEach(d => downDirsHash[d] = true);
             }
-            if (config.repetableDirs && config.repetableDirs.length > 0) {
-                migrationDirs.push(...config.repetableDirs);
-                config.repetableDirs.forEach(d => repetableDirsHash[d] = true);
+            if (config.repeatableDirs && config.repeatableDirs.length > 0) {
+                migrationDirs.push(...config.repeatableDirs);
+                config.repeatableDirs.forEach(d => repeatableDirsHash[d] = true);
             }
-            if (config.repetableBeforeDirs && config.repetableBeforeDirs.length > 0) {
-                migrationDirs.push(...config.repetableBeforeDirs);
-                config.repetableBeforeDirs.forEach(d => repetableBeforeDirsHash[d] = true);
+            if (config.repeatableBeforeDirs && config.repeatableBeforeDirs.length > 0) {
+                migrationDirs.push(...config.repeatableBeforeDirs);
+                config.repeatableBeforeDirs.forEach(d => repeatableBeforeDirsHash[d] = true);
             }
             if (config.beforeDirs && config.beforeDirs.length > 0) {
                 migrationDirs.push(...config.beforeDirs);
@@ -266,8 +266,8 @@ module.exports = {
             }
             
             const beforeList = [];
-            const repetableBeforeList = [];
-            const repetableList = [];
+            const repeatableBeforeList = [];
+            const repeatableList = [];
             const upList = [];
             const downList = [];
             const afterList = [];
@@ -338,8 +338,8 @@ module.exports = {
                     }
     
                     if (fileName.indexOf(config.separatorPrefix) == -1 
-                        && repetableDirsHash[migrationDir] == false 
-                        && repetableBeforeDirsHash[migrationDir] == false
+                        && repeatableDirsHash[migrationDir] == false 
+                        && repeatableBeforeDirsHash[migrationDir] == false
                         && beforeDirsHash[migrationDir] == false
                         && afterDirsHash[migrationDir] == false
                         && upDirsHash[migrationDir] == false
@@ -479,24 +479,24 @@ module.exports = {
                             pushTo = downList;
                         }
     
-                    } else if (prefix == config.repetablePrefix || repetableDirsHash[migrationDir]) {
+                    } else if (prefix == config.repeatablePrefix || repeatableDirsHash[migrationDir]) {
                         if (isUp) {
-                            type = migTypes.repetable;
+                            type = migTypes.repeatable;
     
-                            if (repetableHashes[hash + ";" + (config.repetableByScriptPath ? script : name)]) {
+                            if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
                                 return;
                             }
-                            pushTo = repetableList;
+                            pushTo = repeatableList;
                         }
-                    } else if (prefix == config.repetableBeforePrefix || repetableBeforeDirsHash[migrationDir]) {
+                    } else if (prefix == config.repeatableBeforePrefix || repeatableBeforeDirsHash[migrationDir]) {
                         if (isUp) {
-                            type = migTypes.repetableBefore;
+                            type = migTypes.repeatableBefore;
 
-                            if (repetableHashes[hash + ";" + (config.repetableByScriptPath ? script : name)]) {
+                            if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
                                 //pushTo = null;
                                 return;
                             }
-                            pushTo = repetableBeforeList;
+                            pushTo = repeatableBeforeList;
                         }
                     } else if (prefix == config.beforePrefix || beforeDirsHash[migrationDir]) {
                         if (isUp) {
@@ -513,18 +513,18 @@ module.exports = {
                     } else if (prefix == config.finalizePrefix) {
                         finalizeList.push({fileName, filePath: filePath.replace(/\\/g, "/").replace(/\/+/g, "/").replace('./', "").replace('./', "")});
                     } else {
-                        if (config.allFilesAreRepetable) {
+                        if (config.allFilesArerepeatable) {
                             if (isUp) {
-                                type = migTypes.repetable;
+                                type = migTypes.repeatable;
 
-                                if (repetableHashes[hash + ";" + (config.repetableByScriptPath ? script : name)]) {
+                                if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
                                     return;
                                 }
-                                pushTo = repetableList;
+                                pushTo = repeatableList;
                                 name = fileName.split(".").slice(0, -1).join(".").replace(/[^a-zA-Z0-9]/g, " ").trim().replace(/\s+/g, " ");
                             }
                         } else if (config.warnOnInvalidPrefix) {
-                            warning(`Migration file ${fileName} does not contain valid prefix. Skipping. Valied prefixes are '${config.upPrefix}', '${config.downPrefix}', '${config.repetablePrefix}', '${config.repetableBeforePrefix}', '${config.beforePrefix}', '${config.afterPrefix}', '${config.finalizePrefix}' and separator prefix '${config.separatorPrefix}'.`);
+                            warning(`Migration file ${fileName} does not contain valid prefix. Skipping. Valied prefixes are '${config.upPrefix}', '${config.downPrefix}', '${config.repeatablePrefix}', '${config.repeatableBeforePrefix}', '${config.beforePrefix}', '${config.afterPrefix}', '${config.finalizePrefix}' and separator prefix '${config.separatorPrefix}'.`);
                             return;
                         }
                     }
@@ -538,8 +538,8 @@ module.exports = {
             afterList.sort((a, b) => config.sortFunction(a, b, config));
             beforeList.sort((a, b) => config.sortFunction(a, b, config));
     
-            repetableList.sort((a, b) => config.sortFunction(a, b, config));
-            repetableBeforeList.sort((a, b) => config.sortFunction(a, b, config));
+            repeatableList.sort((a, b) => config.sortFunction(a, b, config));
+            repeatableBeforeList.sort((a, b) => config.sortFunction(a, b, config));
     
             upList.sort((a, b) => config.versionSortFunction(a, b, config));
             downList.sort((a, b) => config.versionSortFunction(b, a, config));
@@ -547,9 +547,9 @@ module.exports = {
             var finalUpList;
             if (config.recursiveDirs && config.dirsOrderedByName) {
                 const indexedList = beforeList
-                    .concat(repetableBeforeList)
+                    .concat(repeatableBeforeList)
                     .concat(upList)
-                    .concat(repetableList)
+                    .concat(repeatableList)
                     .concat(afterList)
                     .map((item, index) => ({...item, originalIndex: index}));
                 finalUpList = indexedList.sort((a, b) => {
@@ -605,7 +605,7 @@ module.exports = {
                     return a.originalIndex - b.originalIndex;
                 });
             } else {
-                finalUpList = beforeList.concat(repetableBeforeList).concat(upList).concat(repetableList).concat(afterList);
+                finalUpList = beforeList.concat(repeatableBeforeList).concat(upList).concat(repeatableList).concat(afterList);
             }
     
             if (opt.list) {
@@ -653,7 +653,7 @@ module.exports = {
             }
     
             if (isUp) {
-                if (beforeList.length == 0 && repetableBeforeList.length == 0 && upList.length == 0 && repetableList.length == 0 && afterList.length == 0) {
+                if (beforeList.length == 0 && repeatableBeforeList.length == 0 && upList.length == 0 && repeatableList.length == 0 && afterList.length == 0) {
                     warning("Nothing to migrate.");
                     await finalize(finalizeList, config, opt);
                     return;
@@ -737,15 +737,15 @@ begin
             }
     
             if (beforeList.length == 0 && 
-                repetableBeforeList.length == 0 && 
-                upList.length == 0 && downList.length == 0 && repetableList.length == 0 && afterList.length == 0) {
+                repeatableBeforeList.length == 0 && 
+                upList.length == 0 && downList.length == 0 && repeatableList.length == 0 && afterList.length == 0) {
             }
     
             if (isUp) {
                 // addMigration(beforeList);
-                // addMigration(repetableBeforeList);
+                // addMigration(repeatableBeforeList);
                 // addMigration(upList);
-                // addMigration(repetableList);
+                // addMigration(repeatableList);
                 // addMigration(afterList);
                 addMigration(finalUpList);
             } else if (isDown) {
