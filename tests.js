@@ -8,18 +8,12 @@ module.exports = async function(opt, config) {
     var testList = [];
     var dir = config.testDir || config.migrationDir;
     const migrationDirs = Array.isArray(dir) ? dir : [dir];
-    for (let i = 0; i < migrationDirs.length; i++) {
-        const migrationDir = migrationDirs[i];
-        if (!migrationDir) {
-            continue;
-        }
-        if (!fs.existsSync(migrationDir) || !fs.lstatSync(migrationDir).isDirectory()) {
-            error(`Test directory ${migrationDir} does not exist or is not a directory. Please provide a valid test directory.`);
-            return;
-        }
+
+    function readDirRecursive(migrationDir) {
         fs.readdirSync(migrationDir).forEach(fileName => {
             const filePath = path.join(migrationDir, fileName);
             if (fs.lstatSync(filePath).isDirectory()) {
+                readDirRecursive(filePath);
                 return;
             }
 
@@ -42,6 +36,18 @@ module.exports = async function(opt, config) {
             }
             testList.push({fileName, filePath: filePath.replace(/\\/g, "/").replace(/\/+/g, "/").replace('./', "").replace('./', "")});
         });
+    }
+
+    for (let i = 0; i < migrationDirs.length; i++) {
+        const migrationDir = migrationDirs[i];
+        if (!migrationDir) {
+            continue;
+        }
+        if (!fs.existsSync(migrationDir) || !fs.lstatSync(migrationDir).isDirectory()) {
+            error(`Test directory ${migrationDir} does not exist or is not a directory. Please provide a valid test directory.`);
+            return;
+        }
+        readDirRecursive(migrationDir);
     }
 
     if (!testList.length) {

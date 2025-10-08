@@ -36,6 +36,7 @@ module.exports = {
     repeatableByScriptPath: true,
     migrationExtensions: [".sql"],
     recursiveDirs: false,
+    skipMigrationDirs: [],
     dirsOrderedByName: true,
     dirsNaturalOrder: true,
     dirsOrderReversed: false,

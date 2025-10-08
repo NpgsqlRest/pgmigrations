@@ -300,9 +300,20 @@ module.exports = {
             var finalizeList = [];
             for (let i = 0; i < migrationDirs.length; i++) {
                 const migrationDir = migrationDirs[i];
+
                 if (!migrationDir) {
                     continue;
                 }
+
+                if (config.skipMigrationDirs && config.skipMigrationDirs.length > 0) {
+                    if (config.skipMigrationDirs.includes(migrationDir)) {
+                        if (opt.verbose) {
+                            warning(`Skipping migration directory ${migrationDir} as it is present in skipMigrationDirs config.`);
+                        }
+                        continue;
+                    }
+                }
+
                 var parsed = migrationDir.replace(/[^a-zA-Z0-9]/g, "");
                 if (parsedDirs[parsed]) {
                     continue;
