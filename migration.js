@@ -94,7 +94,7 @@ function parseContent(filePath, config, opt, dependencyList) {
                     dependencyList = [];
                 }
                 deps.forEach(d => {
-                    dependencyList.push
+                    dependencyList.push(d);
                 });
             }
 
@@ -431,7 +431,7 @@ module.exports = {
                     const meta = {};
     
                     //const content = await parseContent(filePath, config, opt);
-                    var dependencyList = null;
+                    var dependencyList = [];
                     const content = parseContent(filePath, config, opt, dependencyList);
                     const hash = config.hashFunction(content);
                     let pushTo = null;
@@ -506,7 +506,7 @@ module.exports = {
                     } else if (prefix == config.repeatablePrefix || repeatableDirsHash[migrationDir]) {
                         if (isUp) {
                             type = migTypes.repeatable;
-                            if (dependencyList && (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName])) {
+                            if (dependencies[name] || dependencies[name.replace(/ /g, "_")] || dependencies[script] || dependencies[fileName]) {
                                 pushTo = repeatableList;
                             } else {
                                 if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
@@ -523,7 +523,7 @@ module.exports = {
                     } else if (prefix == config.repeatableBeforePrefix || repeatableBeforeDirsHash[migrationDir]) {
                         if (isUp) {
                             type = migTypes.repeatableBefore;
-                            if (dependencyList && (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName])) {
+                            if (dependencies[name] || dependencies[name.replace(/ /g, "_")] || dependencies[script] || dependencies[fileName]) {
                                 pushTo = repeatableList;
                             } else {
                                 if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
