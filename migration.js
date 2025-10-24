@@ -91,10 +91,10 @@ function parseContent(filePath, config, opt, dependencyList) {
             if (dependencyIndexOf != -1) {
                 var deps = line.substring(dependencyIndexOf + dependencyTag.length).trim().split(",").map(d => d.trim());
                 if (!dependencyList) {
-                    dependencyList = {};
+                    dependencyList = [];
                 }
                 deps.forEach(d => {
-                    dependencyList[d] = true;
+                    dependencyList.push
                 });
             }
 
@@ -310,7 +310,7 @@ module.exports = {
             var usedNames = {};
             migrationDirs.sort();
             var finalizeList = [];
-            var dependencyList = {};
+            var dependencies = {};
             for (let i = 0; i < migrationDirs.length; i++) {
                 const migrationDir = migrationDirs[i];
 
@@ -431,6 +431,7 @@ module.exports = {
                     const meta = {};
     
                     //const content = await parseContent(filePath, config, opt);
+                    var dependencyList = null;
                     const content = parseContent(filePath, config, opt, dependencyList);
                     const hash = config.hashFunction(content);
                     let pushTo = null;
@@ -511,6 +512,11 @@ module.exports = {
                                 if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
                                     return;
                                 }
+                                if (dependencyList) {
+                                    for (let d of dependencyList) {
+                                        dependencies[d] = true
+                                    }
+                                }
                                 pushTo = repeatableList;
                             }
                         }
@@ -523,6 +529,11 @@ module.exports = {
                                 if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
                                     //pushTo = null;
                                     return;
+                                }
+                                if (dependencyList) {
+                                    for (let d of dependencyList) {
+                                        dependencies[d] = true
+                                    }
                                 }
                                 pushTo = repeatableBeforeList;
                             }
