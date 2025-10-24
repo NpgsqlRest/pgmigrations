@@ -506,7 +506,7 @@ module.exports = {
                     } else if (prefix == config.repeatablePrefix || repeatableDirsHash[migrationDir]) {
                         if (isUp) {
                             type = migTypes.repeatable;
-                            if (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName]) {
+                            if (dependencyList && (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName])) {
                                 pushTo = repeatableList;
                             } else {
                                 if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
@@ -523,7 +523,7 @@ module.exports = {
                     } else if (prefix == config.repeatableBeforePrefix || repeatableBeforeDirsHash[migrationDir]) {
                         if (isUp) {
                             type = migTypes.repeatableBefore;
-                            if (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName]) {
+                            if (dependencyList && (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName])) {
                                 pushTo = repeatableList;
                             } else {
                                 if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
