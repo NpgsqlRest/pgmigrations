@@ -432,7 +432,9 @@ Display warning if some migration file with the migration extension (`.sql`) doe
 
 Parses migration scripts for special tags to be executed in the build time.
 
-For now, the only tag that is implemented is `# import <file>`.
+##### Import
+
+- `# import <file>`.
 
 When parses finds `# import <file>` tag, it will insert the content of that file in the next lines. This can be anywhere in the migration script. For example, you would normally put this in a comment like this:
 
@@ -455,7 +457,6 @@ But if you do this:
 */
 ```
 
-
 Build will produce:
 
 ```sql
@@ -466,6 +467,12 @@ test.sql content
 ```
 
 The default is true.
+
+##### Dependencies
+
+- `# dependencies <name|name(underlines)|script(full path)|file_name|>, <name|name(underlines)|script(full path)|file_name|>, <name|name(underlines)|script(full path)|file_name|> ...`.
+
+List of depended repeatable scripts. If repeatable script needs to be executed based on hash, also script from dependencies will be executed as well.
 
 #### parseEnvVars
 

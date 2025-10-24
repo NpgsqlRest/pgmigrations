@@ -70,9 +70,10 @@ function formatByName(str, obj) {
 };
 
 const importTag = "# import";
+const dependencyTag = "# dependencies";
 const envRegex = /\$\{([^}]+)\}/g;
 
-function parseContent(filePath, config, opt) {
+function parseContent(filePath, config, opt, dependencyList) {
     // Read file content as string
     var content = fs.readFileSync(filePath).toString();
     
@@ -86,6 +87,17 @@ function parseContent(filePath, config, opt) {
     if (config.parseScriptTags) {
         const lines = content.split("\n");
         const parsedLines = lines.map(line => {
+            var dependencyIndexOf = line.indexOf(dependencyTag);
+            if (dependencyIndexOf != -1) {
+                var deps = line.substring(dependencyIndexOf + dependencyTag.length).trim().split(",").map(d => d.trim());
+                if (!dependencyList) {
+                    dependencyList = {};
+                }
+                deps.forEach(d => {
+                    dependencyList[d] = true;
+                });
+            }
+
             var importIndexOf = line.indexOf(importTag);
             if (importIndexOf != -1) {
                 const filename = line.substring(importIndexOf + importTag.length).trim();
@@ -298,6 +310,7 @@ module.exports = {
             var usedNames = {};
             migrationDirs.sort();
             var finalizeList = [];
+            var dependencyList = {};
             for (let i = 0; i < migrationDirs.length; i++) {
                 const migrationDir = migrationDirs[i];
 
@@ -418,9 +431,8 @@ module.exports = {
                     const meta = {};
     
                     //const content = await parseContent(filePath, config, opt);
-                    const content = parseContent(filePath, config, opt);
+                    const content = parseContent(filePath, config, opt, dependencyList);
                     const hash = config.hashFunction(content);
-    
                     let pushTo = null;
                     
                     if (prefix.startsWith(config.upPrefix) || upDirsHash[migrationDir]) {
@@ -493,21 +505,27 @@ module.exports = {
                     } else if (prefix == config.repeatablePrefix || repeatableDirsHash[migrationDir]) {
                         if (isUp) {
                             type = migTypes.repeatable;
-    
-                            if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
-                                return;
+                            if (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName]) {
+                                pushTo = repeatableList;
+                            } else {
+                                if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
+                                    return;
+                                }
+                                pushTo = repeatableList;
                             }
-                            pushTo = repeatableList;
                         }
                     } else if (prefix == config.repeatableBeforePrefix || repeatableBeforeDirsHash[migrationDir]) {
                         if (isUp) {
                             type = migTypes.repeatableBefore;
-
-                            if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
-                                //pushTo = null;
-                                return;
+                            if (dependencyList[name] || dependencyList[name.replace(/ /g, "_")] || dependencyList[script] || dependencyList[fileName]) {
+                                pushTo = repeatableList;
+                            } else {
+                                if (repeatableHashes[hash + ";" + (config.repeatableByScriptPath ? script : name)]) {
+                                    //pushTo = null;
+                                    return;
+                                }
+                                pushTo = repeatableBeforeList;
                             }
-                            pushTo = repeatableBeforeList;
                         }
                     } else if (prefix == config.beforePrefix || beforeDirsHash[migrationDir]) {
                         if (isUp) {
